@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * @class 基础服务类
- * @auth echo
+ * @author echo
  * @email 945462788@qq.com
  * @github https://github.com/945462788
  **/
@@ -14,8 +14,9 @@ use think\Container;
 
 class BaseService
 {
+    protected $model;
+
     /**
-     * 静态调用
      * @param mixed ...$args
      * @return BaseService
      */
@@ -32,5 +33,16 @@ class BaseService
     protected function error(string $msg ,$data=[]):void
     {
        throw new ServiceException($msg,$data);
+    }
+
+    public function __call($name, $arguments)
+    {
+        if (!empty($this->model))
+        {
+            return call_user_func([$this->model,$name],$arguments);
+        }
+
+        $this->error('方法不存在:'.__CLASS__);
+        // TODO: Implement __call() method.
     }
 }

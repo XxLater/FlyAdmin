@@ -22,13 +22,4 @@ class AuthService extends BaseService
     {
         return TokenService::instance()->verify($token);
     }
-
-    /**
-     * 微信小程序登录
-     * @param string $code
-     */
-    public function weChatAppLogin(string $code)
-    {
-        $response =  WeChatMiniProgramService::instance()->login($code);
-    }
 }

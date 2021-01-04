@@ -43,3 +43,31 @@ if (!function_exists('filter_emoji')) {
         return $str;
     }
 }
+
+if (!function_exists('system_config'))
+{
+    /**
+     * @param $name
+     * @return mixed
+     */
+    function system_config($name)
+    {
+        return \app\common\service\system\ConfigService::instance()->get($name);
+    }
+}
+
+if (!function_exists('param_list'))
+{
+    function param_list(...$args)
+    {
+        $request = request()->param();
+        $data = [];
+        foreach ($args as $name=>$value)
+        {
+            if (!is_array($value)) continue;
+
+            $data[] = $request[$value[0]] ?? ($value[1] ?? '');
+        }
+        return $data;
+    }
+}

@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 /**
  * @class token服务类
- * @auth echo
+ * @author echo
  * @email 945462788@qq.com
  * @github https://github.com/945462788
  **/
-namespace app\common\service;
+namespace app\common\service\system;
 
+use app\common\service\BaseService;
 use Firebase\JWT\JWT;
 
 class TokenService extends BaseService

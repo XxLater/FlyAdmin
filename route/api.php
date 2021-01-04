@@ -14,5 +14,5 @@ use think\facade\Route;
 //
 //})->middleware();
 
-Route::post('wechat/app-login','api.Auth/weChatAppLogin');
+Route::any('wechat/app-login','api.Auth/weChatAppLogin');
 

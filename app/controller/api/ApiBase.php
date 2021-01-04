@@ -14,8 +14,13 @@ namespace app\controller\api;
 
 
 use app\BaseController;
+use app\common\service\BaseService;
 
 class ApiBase extends BaseController
 {
-
+    /**
+     * 服务类
+     * @var BaseService
+     */
+    protected $service;
 }

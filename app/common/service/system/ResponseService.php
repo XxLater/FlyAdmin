@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 /**
  * @class json响应服务类
- * @auth echo
+ * @author echo
  * @email 945462788@qq.com
  * @github https://github.com/945462788
  **/
 
-namespace app\common\service;
+namespace app\common\service\system;
 
+use app\common\service\BaseService;
 use think\contract\Arrayable;
 use think\exception\HttpResponseException;
 use think\Response;
