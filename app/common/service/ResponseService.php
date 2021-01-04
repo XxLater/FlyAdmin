@@ -81,12 +81,12 @@ class ResponseService extends BaseService
     }
 
     /**
-     * 创建操作成功响应
+     * 创建操作失败响应
      * @param string|array $msg
-     * @param $data
+     * @param array $data
      * @return HttpResponseException
      */
-    public function error($msg = self::ERROR_MSG , $data =[]):HttpResponseException
+    public function fail(string $msg = self::ERROR_MSG,$data = []):HttpResponseException
     {
         if (is_array($msg))
         {

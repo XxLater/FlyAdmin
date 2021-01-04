@@ -8,30 +8,27 @@ declare(strict_types=1);
  * @email 945462788@qq.com
  * @github https://github.com/945462788
  **/
-
-
 namespace app\common\service;
-
+use app\common\exception\ServiceException;
 
 class AuthService extends BaseService
 {
     /**
      * 验证token
+     * @param string
      * @return mixed
      */
-    public function check()
+    public function check(string $token)
     {
-        $token = request()->header('token');
-
         return TokenService::instance()->verify($token);
     }
 
     /**
      * 微信小程序登录
-     * @param null|string $code
+     * @param string $code
      */
-    public function weChatAppLogin($code = null):void
+    public function weChatAppLogin(string $code)
     {
-//        return WeChatService::instance()->
+        $response =  WeChatMiniProgramService::instance()->login($code);
     }
 }
