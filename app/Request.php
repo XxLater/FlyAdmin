@@ -5,4 +5,9 @@ namespace app;
 class Request extends \think\Request
 {
 
+    /**
+     * @用户id
+     * @var mixed|int
+     */
+    public $user_id;
 }

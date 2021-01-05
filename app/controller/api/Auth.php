@@ -14,8 +14,8 @@ namespace app\controller\api;
 use app\common\model\user\UserModel;
 use app\common\service\AuthService;
 use app\common\service\system\TokenService;
-use app\common\service\user\UserService;
 use app\common\service\wechat\WeChatMiniProgramService;
+use app\common\service\wechat\WeChatService;
 
 class Auth extends ApiBase
 {
@@ -31,17 +31,21 @@ class Auth extends ApiBase
      */
     public function weChatAppLogin():void
     {
-        $code = $this->request->param('code',null);
+        [$code,$cache_key] = param_list(['code',null],['cache_key',null]);
 
         $miniProgramService = app()->make(WeChatMiniProgramService::class);
 
-        $session_key = cache('wx_app_user_session_'.$code);
+        $session_key = cache('wx_app_user_session_'.$cache_key);
+
+        if (!$code) app('response')->fail('缺少code参数',[],40002);
 
         if ($code && !$session_key)
         {
             $user_info = $miniProgramService->login($code);
 
             $session_key = $user_info['session_key'];
+
+            $cache_key = md5($code);
 
             cache('wx_app_user_session_'.$code,$session_key,86400);
         }
@@ -52,23 +56,42 @@ class Auth extends ApiBase
 
         $userModel = app()->make(UserModel::class);
 
-        if ($uid =$userModel->saveWeChatAppUser($user_info))
+        if ($uid = $userModel->saveWeChatAppUser($user_info))
         {
             $token = TokenService::instance()->create($uid);
 
-            app('response')->success(compact('token','session_key'));
+            app('response')->success(compact('token','cache_key'));
         }
 
-        app('response')->fail('添加用户失败，请稍后重试');
+        app('response')->fail('小程序登录失败，请稍后重试');
     }
 
     /**
      * 微信登录
      */
-    public function weChatLogin():void
+    public function weChatLogin()
     {
-        $code = $this->request->param('code');
+        [$code,$state] = param_list(['code',''],['state','']);
 
+        $wechatService = app()->make(WeChatService::class);
+
+        if ($code)
+        {
+            $user_info = $wechatService->login();
+
+            $userModel = app()->make(UserModel::class);
+
+            if ($uid = $userModel->saveWeChatUser($user_info))
+            {
+                $token = TokenService::instance()->create($uid);
+
+                app('response')->success(compact('token'));
+            }
+
+            app('response')->fail('微信登录失败，请稍后重试');
+        }
+
+        return $wechatService->redirect('http://base.echo.cysky.cc/wechat/login');
 
     }
 }
