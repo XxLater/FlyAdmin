@@ -26,7 +26,7 @@ class ConfigService extends BaseService
     {
         $this->model = $model;
 
-        $this->data = cache('system_config');
+        $this->data = cache('system_config'.is_debug() ? '12345' : '');
 
         if (!$this->data)
         {

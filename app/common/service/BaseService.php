@@ -28,21 +28,21 @@ class BaseService
     /**
      * @param string $msg
      * @param array $data
+     * @param int $code
      * @throws ServiceException
      */
-    protected function error(string $msg ,$data=[]):void
+    protected function error(string $msg ,$data=[],$code=500):void
     {
-       throw new ServiceException($msg,$data);
+       throw new ServiceException($msg,$data,$code);
     }
 
     public function __call($name, $arguments)
     {
         if (!empty($this->model))
         {
-            return call_user_func([$this->model,$name],$arguments);
+            return call_user_func_array([$this->model,$name],$arguments);
         }
 
         $this->error('方法不存在:'.__CLASS__);
-        // TODO: Implement __call() method.
     }
 }

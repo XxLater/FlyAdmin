@@ -16,9 +16,13 @@ use app\common\exception\ServiceException;
 use app\common\service\BaseService;
 use EasyWeChat\Factory;
 use EasyWeChat\Kernel\Exceptions\InvalidConfigException;
+use EasyWeChat\MiniProgram\Application;
 
 class WeChatMiniProgramService extends BaseService
 {
+    /**
+     * @var \EasyWeChat\MiniProgram\Application
+     */
     protected $service;
 
     public function __construct()
@@ -55,5 +59,13 @@ class WeChatMiniProgramService extends BaseService
     public function decryptData($session, $iv, $encryptedData):array
     {
         return $this->service->encryptor->decryptData($session,$iv,$encryptedData);
+    }
+
+    /**
+     * @return Application
+     */
+    public function getService():Application
+    {
+        return $this->service;
     }
 }

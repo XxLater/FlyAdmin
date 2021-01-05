@@ -14,11 +14,10 @@ namespace app\common\exception;
 
 
 use think\Exception;
-use Throwable;
 
 class ServiceException extends Exception
 {
-    public function __construct($message = "", $data =[] ,$code = 500)
+    public function __construct($message = "", $data =[] ,$code = 0)
     {
         $this->message = $message;
         $this->code = $code;

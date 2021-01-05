@@ -18,7 +18,7 @@ use think\Response;
 
 class ResponseService extends BaseService
 {
-    protected const ERROR_CODE  = 400;
+    protected const ERROR_CODE  = 500;
 
     protected const SUCCESS_CODE  = 200;
 
@@ -47,7 +47,7 @@ class ResponseService extends BaseService
      * @param $msg
      * @return HttpResponseException
      */
-    public function create($msg, $data=[], int $code=0):HttpResponseException
+    public function create($msg, $data=[], int $code = 0):HttpResponseException
     {
         if ($data instanceof Arrayable)
         {
@@ -85,9 +85,10 @@ class ResponseService extends BaseService
      * 创建操作失败响应
      * @param string|array $msg
      * @param array $data
+     * @param int $code
      * @return HttpResponseException
      */
-    public function fail(string $msg = self::ERROR_MSG,$data = []):HttpResponseException
+    public function fail(string $msg = self::ERROR_MSG,  $data = [] ,int $code = self::ERROR_CODE):HttpResponseException
     {
         if (is_array($msg))
         {
@@ -96,8 +97,8 @@ class ResponseService extends BaseService
             $msg = self::ERROR_MSG;
         }
 
-        $this->code = self::ERROR_CODE;
+        $this->code = empty($this->code) ? self::ERROR_CODE : $this->code;
 
-        return $this->create($msg,$data,0);
+        return $this->create($msg,$data,$code);
     }
 }

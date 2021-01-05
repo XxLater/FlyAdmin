@@ -18,6 +18,4 @@ use app\common\model\BaseModel;
 class ConfigModel extends BaseModel
 {
     protected $name = 'config';
-
-
 }
