@@ -26,7 +26,9 @@
         "firebase/php-jwt": "^5.2",
       "ext-json": "*",
         "overtrue/wechat": "~4.x-dev",
-        "topthink/think-swoole": "^3.0"
+        "topthink/think-swoole": "^3.0",
+        "topthink/think-view": "^1.0",
+        "topthink/think-captcha": "^3.0"
     },
     "require-dev": {
         "symfony/var-dumper": "^4.2",

@@ -10,10 +10,17 @@ declare(strict_types=1);
  **/
 namespace app\common\service;
 use app\common\exception\ServiceException;
+use app\common\model\BaseModel;
 use think\Container;
 
+/**
+ * @method userNameByUser($username)
+ */
 class BaseService
 {
+    /**
+     * @var BaseModel
+     */
     protected $model;
 
     /**

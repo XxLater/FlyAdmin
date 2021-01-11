@@ -23,7 +23,7 @@ class TokenMiddleware extends BaseMiddleware
 
     public function before(Request $request):void
     {
-        $token = $this->request->header('Token');
+        $token = $this->request->header('token');
 
         if (!$token) app('response')->fail('缺少token参数',[],40002);
 

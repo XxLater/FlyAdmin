@@ -58,6 +58,18 @@ class UserModel extends BaseModel
     }
 
     /**
+     * @param $username
+     * @return array|\think\Model|null
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public function userNameByUser($username)
+    {
+        return $this->where('username',$username)->find();
+    }
+
+    /**
      * @param array $userInfo
      * @return int|mixed
      */

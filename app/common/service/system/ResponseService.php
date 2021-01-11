@@ -18,15 +18,15 @@ use think\Response;
 
 class ResponseService extends BaseService
 {
-    protected const ERROR_CODE  = 500;
+    protected const ERROR_CODE  = 0;
 
-    protected const SUCCESS_CODE  = 200;
+    protected const SUCCESS_CODE  = 1;
 
     protected const SUCCESS_MSG = 'ok';
 
     protected const ERROR_MSG = 'error';
 
-    protected $code;
+    protected $code =200;
 
     /**
      * 设置响应码
@@ -49,11 +49,6 @@ class ResponseService extends BaseService
      */
     public function create($msg, $data=[], int $code = 0):HttpResponseException
     {
-        if ($data instanceof Arrayable)
-        {
-            $data =  $data->toArray();
-        }
-
         $result = compact('code','data','msg');
 
         $response = Response::create($result,'json',$this->code);
@@ -69,16 +64,18 @@ class ResponseService extends BaseService
      */
     public function success($msg = self::SUCCESS_MSG , $data =[]):HttpResponseException
     {
+        if ($msg instanceof Arrayable)
+        {
+            $msg = $msg->toArray();
+        }
+
         if (is_array($msg))
         {
             $data = $msg;
 
             $msg = self::SUCCESS_MSG;
         }
-
-        $this->code = self::SUCCESS_CODE;
-
-        return $this->create($msg,$data,1);
+        return $this->create($msg,$data,self::SUCCESS_CODE);
     }
 
     /**
@@ -90,14 +87,17 @@ class ResponseService extends BaseService
      */
     public function fail(string $msg = self::ERROR_MSG,  $data = [] ,int $code = self::ERROR_CODE):HttpResponseException
     {
+        if ($msg instanceof Arrayable)
+        {
+            $msg = $msg->toArray();
+        }
+
         if (is_array($msg))
         {
             $data = $msg;
 
             $msg = self::ERROR_MSG;
         }
-
-        $this->code = empty($this->code) ? self::ERROR_CODE : $this->code;
 
         return $this->create($msg,$data,$code);
     }

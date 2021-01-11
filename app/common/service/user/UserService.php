@@ -16,8 +16,14 @@ namespace app\common\service\user;
 use app\common\model\user\UserModel;
 use app\common\service\BaseService;
 
+/**
+ * @method userIdByUser($user_id)
+ */
 class UserService extends BaseService
 {
+    /**
+     * @var UserModel
+     */
     protected $model;
 
     public function __construct(UserModel $model)
