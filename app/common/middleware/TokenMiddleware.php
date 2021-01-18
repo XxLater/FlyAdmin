@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace app\common\middleware;
 
 
-use app\common\service\system\TokenService;
+use app\common\service\utils\TokenService;
 use app\common\service\user\UserService;
 use app\Request;
 use think\Response;

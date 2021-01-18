@@ -10,4 +10,9 @@ class Request extends \think\Request
      * @var mixed|int
      */
     public $user_id;
+    /**
+     * @用户角色id
+     * @var mixed |int
+     */
+    public $role_id;
 }

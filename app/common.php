@@ -71,3 +71,23 @@ if (!function_exists('param_list'))
         return $data;
     }
 }
+
+if (!function_exists('get_path'))
+{
+    function get_path()
+    {
+        $controller = explode('.',request()->controller(true));
+        $controller = is_array($controller) ? end($controller) : $controller;
+        $action = request()->action(true);
+        return $controller.'/'.$action;
+    }
+}
+
+if (!function_exists('is_login'))
+{
+    function is_login()
+    {
+        $token = session('user_token');
+        return \app\common\service\utils\TokenService::instance()->verify($token);
+    }
+}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Login Page</title>
+		<!-- 样 式 文 件 -->
+		<link rel="stylesheet" href="/static/component/pear/css/pear.css" />
+		<link rel="stylesheet" href="/static/admin/css/other/login.css" />
+	</head>
+    <!-- 代 码 结 构 -->
+	<body background="/static/admin/images/background2.svg" style="background-size: cover;">
+		<form class="layui-form" action="javascript:void(0);">
+			<div class="layui-form-item">
+				<img class="logo" src="/static/admin/images/logo.png" />
+				<div class="title">{:system_config('site_title')}</div>
+			</div>
+			<div class="layui-form-item">
+				<input placeholder="账 户" name="username" hover class="layui-input"  value="admin" required  lay-verify="required">
+			</div>
+			<div class="layui-form-item">
+				<input placeholder="密 码" name="password" hover class="layui-input" type="password" value="111111"  required  lay-verify="required">
+			</div>
+			{notempty name=":system_config('has_verify_code')"}
+			<div class="layui-form-item">
+				<input placeholder="验证码" name="code" hover class="code layui-input layui-input-inline"  required  lay-verify="required" value="{:session('captcha.key')}">
+				<img src="{:captcha_src()}" class="codeImage" onClick="this.src='{:captcha_src()}?'+Math.random();"/ >
+			</div>
+			{/notempty}
+			<div class="layui-form-item">
+				<button type="button" class="pear-btn pear-btn-success login" lay-submit lay-filter="login">
+					登 入
+				</button>
+			</div>
+		</form>
+		<!-- 资 源 引 入 -->
+		<script src="/static/component/layui/layui.js?v={:time()}"></script>
+		<script src="/static/component/pear/pear.js?v={:time()}"></script>
+		<script>
+			layui.use(['form', 'element', 'jquery', 'button', 'popup','request'], function() {
+				var form = layui.form;
+				var element = layui.element;
+				var button = layui.button;
+				var popup = layui.popup;
+				var $ = layui.jquery;
+				var request = layui.request
+
+                // 登 录 提 交
+				form.on('submit(login)', function(data) {
+					// popup.success("登录成功", function() {
+					// 	location.href = "index.html"
+					// });
+					var load = button.load({
+						elem: '.login',
+					})
+					request.post('',data.field).then(function (res){
+						load.stop(function (){
+							popup.success('欢迎登陆')
+							setTimeout(function (){
+								location.href = "{:url('/admin/index/index')}"
+							},1500)
+						})
+					}).catch(function (res){
+						load.stop(function (){
+						popup.failure(res.msg)
+						$('.codeImage').click()
+						})
+					})
+
+					return false;
+				});
+			})
+		</script>
+	</body>
+</html>

@@ -3,7 +3,7 @@ declare (strict_types = 1);
 
 namespace app;
 
-use app\common\service\system\ResponseService;
+use app\common\service\utils\ResponseService;
 use think\Service;
 
 /**

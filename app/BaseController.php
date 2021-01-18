@@ -4,7 +4,10 @@ declare (strict_types = 1);
 namespace app;
 
 use think\App;
+use think\exception\HttpResponseException;
 use think\exception\ValidateException;
+use think\facade\View;
+use think\Response;
 use think\Validate;
 
 /**
@@ -89,6 +92,27 @@ abstract class BaseController
         }
 
         return $v->failException(true)->check($data);
+    }
+
+    /**
+     * @param string $tpl
+     * @param $args
+     * @return HttpResponseException
+     * @throws HttpResponseException
+     */
+    protected function fetch($tpl = '' , $args = []):HttpResponseException
+    {
+        throw new HttpResponseException(Response::create(View::fetch($tpl,$args)));
+    }
+
+    /**
+     * @param $key
+     * @param null $value
+     * @return void
+     */
+    protected function assign($key , $value = null):void
+    {
+        View::assign($key,$value);
     }
 
 }

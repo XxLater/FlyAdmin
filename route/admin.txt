@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * @author echo
+ * @email 945462788@qq.com
+ * @github https://github.com/945462788
+ **/
+use think\facade\Route;
+use app\common\middleware\AdminMiddleware;
+use app\common\middleware\AllowOriginMiddleware;
+//Route::group('admin/',function (){
+//    /**
+//     * 需要登录
+//     */
+//    Route::group(function (){
+//
+//        //首页
+//        Route::group('index/',function (){
+//            Route::get('index','Index');
+//            Route::get('console','console');
+//        })->prefix('admin.Index/');
+//
+//        //用户
+//        Route::group('user/',function (){
+//           Route::get('info','getUserInfo');
+//        })->prefix('admin.user.User/');
+//
+//        //设置
+//        Route::group('config/',function (){
+//            Route::get('admin_config','adminConfig');
+//            Route::any('site','site');
+//            Route::any('email','email');
+//            Route::any('sms','sms');
+//            Route::any('upload','upload');
+//            Route::any('wechat','wechat');
+//            Route::any('wechat_app','wechatApp');
+//            Route::any('wechat_pay','wechatPay');
+//
+//        })->prefix('admin.system.Config/');
+//
+//    })->middleware(AdminMiddleware::class);
+//
+//    /**
+//     * 不需要登录
+//     */
+//    Route::group(function (){
+//        Route::any('/','admin.Auth/Login');
+//    });
+//
+//
+//})->middleware(AllowOriginMiddleware::class);
+//
+//
+//Route::any('/','Index/Index');

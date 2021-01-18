@@ -19,8 +19,13 @@ class UserModel extends BaseModel
 {
     protected $name = 'user';
 
-    protected $pk = 'user_id';
-
+    /**
+     * @return string
+     */
+    public function getPk():string
+    {
+        return 'user_id';
+    }
     /**
      * @param $unionid
      * @return array|\think\Model|null

@@ -13,9 +13,6 @@ use app\common\exception\ServiceException;
 use app\common\model\BaseModel;
 use think\Container;
 
-/**
- * @method userNameByUser($username)
- */
 class BaseService
 {
     /**

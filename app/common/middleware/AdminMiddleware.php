@@ -14,21 +14,23 @@ namespace app\common\middleware;
 
 
 use app\Request;
+use think\exception\HttpResponseException;
 use think\Response;
-use app\common\service\system\TokenService;
+use app\common\service\utils\TokenService;
 use app\common\service\user\UserService;
-class AdminMiddleware extends BaseMiddleware
+
+class AdminMiddleware
 {
-    public function before(Request $request):void
+    public function before(Request $request)
     {
         $token = session('user_token');
 
         if (!$token) {
-            app('response')->fail('缺少token参数', [], 40002);
+            throw new HttpResponseException(redirect('admin/auth/login'));
         }
 
         if (!$uid = TokenService::instance()->verify($token)) {
-            app('response')->fail('token验证失败', [], 40003);
+            throw new HttpResponseException(redirect('admin/auth/login'));
         }
 
         $user = UserService::instance()->userIdByUser($uid);
@@ -38,6 +40,16 @@ class AdminMiddleware extends BaseMiddleware
         }
 
         $request->user_id = $uid;
+
+        $request->role_id = $user['role_id'];
+    }
+
+    public function handle(Request $request , \Closure $next)
+    {
+        $this->before($request);
+        $response = $next($request);
+        $this->after($response);
+        return $response;
     }
 
     public function after(Response $response)

@@ -22,6 +22,7 @@ abstract class BaseMiddleware
      * @var Request
      */
     protected $request;
+
     abstract public function before(Request $request);
 
     abstract public function after(Response $response);

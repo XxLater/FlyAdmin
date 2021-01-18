@@ -9,4 +9,5 @@ use think\Model;
 class BaseModel extends Model
 {
     protected $updateTime = false;
+
 }

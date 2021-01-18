@@ -30,12 +30,9 @@ class Http extends Handle
         } else if ($e instanceof DataNotFoundException)
         {
             app('response')->fail(is_debug() ? $e->getMessage() :'数据不存在' , $e->getCode());
-        } else if($e instanceof ErrorException)
+        } else if($e instanceof RouteNotFoundException)
         {
-            app('response')->fail(is_debug() ? $e->getMessage() : '服务器错误', is_debug() ? $e->getData() : [] , $e->getCode());
-        }else if($e instanceof RouteNotFoundException)
-        {
-//            app('response')->fail($e->getMessage(),[],404);
+            app('response')->fail($e->getMessage(),[],404);
         }
 //        else if ($e instanceof  InvalidArgumentException)
 //        {
