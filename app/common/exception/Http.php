@@ -43,7 +43,7 @@ class Http extends Handle
         }
         else if($e instanceof PDOException)
         {
-            app('response')->fail('服务器错误，操作失败',is_debug() ? $e->getData() : [],40001);
+            app('response')->fail('服务器错误，操作失败',is_debug() ? $e->getData() : []);
         }
         return parent::render($request, $e); 
     }
