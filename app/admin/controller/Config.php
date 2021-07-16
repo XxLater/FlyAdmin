@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * @class
+ * @class 系统
  * @auth echo
  * @email 945462788@qq.com
  * @github https://github.com/945462788
@@ -12,8 +12,9 @@ declare(strict_types=1);
 
 namespace app\admin\controller;
 
-use app\common\service\system\AnnotationService;
-use think\facade\Config as SystemConfig;
+use app\common\service\system\ConfigService;
+use app\common\service\utils\ConstructorFormService;
+
 /**
  * @title 系统配置
  * Class Config
@@ -22,19 +23,90 @@ use think\facade\Config as SystemConfig;
 class Config extends Base
 {
     /**
-     * @title 后台配置
-     * @auth false
-     * @menu false
+     * 系统配置
+     */
+    public function site()
+    {
+        if($this->request->isPost())
+        {
+            $this->update();
+        }
+        $data = ConfigService::instance()->where('group','system')->column('value','key');
+        ConstructorFormService::create('网站配置')
+            ->addImage('网站logo','site_logo',true)
+            ->addText('网站标题','site_title',true)
+            ->addText('网站关键词','site_keyword')
+            ->addTextarea('网站描述','site_description')
+            ->addText('最大上传文件大小(mb)','file_size')
+            ->addSwitch('登陆是否需要验证码','has_verify_code')
+            ->addTag('允许上传文件后缀','file_ext',true)
+            ->setData($data)
+            ->fetch();
+    }
+
+    /**
+     * 公众号配置
+     * @return void
+     */
+    public function wechat()
+    {
+        if($this->request->isPost())
+        {
+            $this->update();
+        }
+        $data = ConfigService::instance()->where('group','wechat')->column('value','key');
+        ConstructorFormService::create('小程序配置')
+            ->addText('公众号ID','wechat_app_id',true)
+            ->addText('公众号密钥','wechat_app_secret',true)
+            ->setData($data)
+            ->fetch();
+    }
+
+    /**
+     * 小程序配置
+     * @return void
+     */
+    public function wechatApp()
+    {
+        if($this->request->isPost())
+        {
+            $this->update();
+        }
+        $data = ConfigService::instance()->where('group','wechat_app')->column('value','key');
+        ConstructorFormService::create('小程序配置')
+            ->addText('小程序ID','program_app_id',true)
+            ->addText('小程序密钥','program_app_secret',true)
+            ->setData($data)
+            ->fetch();
+    }
+
+    /**
+     * 更新配置
+     * @return void
+     */
+    public function update()
+    {
+        $param = $this->request->param();
+
+        $total = 0;
+
+        $service = ConfigService::instance();
+
+        foreach($param as $key=>$value)
+        {
+            $total += $service->where('key',$key)->update(['value'=>$value]);
+        }
+
+        if($total ==0) app('response')->fail('error');
+
+        app('response')->success('ok');
+    }
+
+    /**
      */
     public function adminConfig()
     {
-
-        $menuService = AnnotationService::create(app()->getAppPath().SystemConfig::get('route.controller_layer'));
-
-        $menuService->getMethod();
-
-        $menu = $menuService->getMenu();
-
+        $menu = cache('system.auth_menu_'.$this->request->role_id);
         $data['logo']['image'] = system_config('site_logo');
 
         $data['logo']['title'] = system_config('site_title');
@@ -47,19 +119,14 @@ class Config extends Base
             ]
         ];
 
-        $data['other'] = [
-            'keepLoad'=>1200,
-            'autoHead'=>false
-        ];
-
         $data['colors'] = [
             [
                 'id'=>"1",
-                'color'=>'#FF5722',
+                'color'=>'#5FB878',
             ],
             [
                 'id'=>"2",
-                'color'=>'#5FB878',
+                'color'=>'#FF5722',
             ],
             [
                 'id'=>"3",
@@ -80,7 +147,7 @@ class Config extends Base
                 'data'=>(string)url('admin/menu/getAuthMenu'),
                 'accordion'=>true,
                 'control'=>false,
-                'select'=>$menu[0]['child'][0]['id']
+                'select'=>$menu[0]['child'][0]['menu_id']
             ];
 
         $data['tab'] = [
@@ -97,39 +164,5 @@ class Config extends Base
         ];
 
         app('response')->create($data);
-    }
-    public function site()
-    {
-        $this->fetch();
-    }
-
-    public function email()
-    {
-        $this->fetch();
-    }
-
-    public function sms()
-    {
-        $this->fetch();
-    }
-
-    public function upload()
-    {
-        $this->fetch();
-    }
-
-    public function wechat()
-    {
-        $this->fetch();
-    }
-
-    public function wechatApp()
-    {
-        $this->fetch();
-    }
-
-    public function wechatPay()
-    {
-        $this->fetch();
     }
 }

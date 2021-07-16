@@ -1,10 +1,12 @@
-layui.define(['jquery', 'layer'], function (exports) {
+layui.define(['jquery', 'layer','notice'], function (exports) {
     "use strict";
 
     var $ = layui.jquery;
     var layer = layui.layer;
+    var notice = layui.notice;
 
     var http = {};
+    http.appPath = '/admin';
     http.ajax = function (userOptions) {
         userOptions = userOptions || {};
 
@@ -26,43 +28,65 @@ layui.define(['jquery', 'layer'], function (exports) {
         return $.Deferred(function ($dfd) {
             $.ajax(options)
                 .done(function (data, textStatus, jqXHR) {
+                    if(data.code !== 1)
+                    {
+                        http.ajax.customizeHandleErrorResponse(data, userOptions, $dfd);
+                        $dfd.reject(data);
+                    }
                     $dfd.resolve(data);
-                    userOptions.success && userOptions.success(data);
                 })
                 .fail(function (jqXHR) {
                     http.ajax.handleErrorResponse(jqXHR, userOptions, $dfd);
                 });
         });
     }
+    http.get = function(url,param,userOptions)
+    {
+        userOptions = userOptions || {}
+
+        var option = $.extend(userOptions,{url:url,type:'GET',data:param})
+        
+        return http.ajax(option)
+    }
+
+    http.post = function(url,param,userOptions)
+    {
+        userOptions = userOptions || {}
+
+        var option =  $.extend(userOptions,{url:url,type:'POST',data:param})
+
+        return http.ajax(option)
+    };
 
     $.extend(http.ajax, {
         defaultOpts: {
             dataType: 'json',
             type: 'POST',
-            contentType: 'application/json',
+            contentType: 'application/x-www-form-urlencoded',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         },
 
         defaultError: {
-            message: 'An error has occurred!',
-            details: 'Error detail not sent by server.'
+            message: '系统响应',
+            details: '操作失败'
         },
 
-        defaultError401: {
-            message: 'You are not authenticated!',
-            details: 'You should be authenticated (sign in) in order to perform this operation.'
+        defaultError40001 :{
+            message: '系统响应',
+            details: '登陆状态失效请重新登陆'
         },
 
-        defaultError403: {
-            message: 'You are not authorized!',
-            details: 'You are not allowed to perform this operation.'
+        defaultError40002 :
+        {
+            message: '系统响应',
+            details: '参数验证失败'
         },
 
-        defaultError404: {
-            message: 'Resource not found!',
-            details: 'The resource requested could not found on the server.'
+        defaultError40003 :{
+            message: '系统响应',
+            details: '权限不足，非法访问'
         },
 
         logError: function (error) {
@@ -103,32 +127,49 @@ layui.define(['jquery', 'layer'], function (exports) {
             }
         },
 
-        handleTargetUrl: function (targetUrl) {
-            if (!targetUrl) {
-                location.href = http.appPath;
-            } else {
-                location.href = targetUrl;
-            }
+        handleTargetUrl: function (targetUrl,timeOut=1500) {
+            targetUrl = targetUrl || http.appPath;
+            setTimeout(function(){
+                top.location.href = targetUrl;
+            },timeOut)
         },
-
-        handleErrorResponse: function (jqXHR, userOptions, $dfd) {
-            if (userOptions.customHandleError !== false) {
-                switch (jqXHR.status) {
-                    case 401:
-                        http.ajax.showErrorAndRedirectUrl(http.ajax.defaultError401, http.appPath);
+        customizeHandleErrorResponse :function(data,userOptions,$dfd)
+        {
+            if (userOptions.ignoreTheError !== true) {
+                switch (data.code) {
+                    case 0:
+                        if(data.msg)
+                        {
+                            notice.error(data.msg)
+                        }else
+                        {
+                            notice.error(http.ajax.defaultError.details)
+                        }
                         break;
-                    case 403:
-                        http.ajax.showError(http.ajax.defaultError403);
+                    case 40001:
+                        notice.error(http.ajax.defaultError40003.details)
+                        http.ajax.showErrorAndRedirectUrl(http.ajax.defaultError40003, http.appPath);
                         break;
-                    case 404:
-                        http.ajax.showError(http.ajax.defaultError404);
+                    case 40002:
+                        if(data.msg == '')
+                        {
+                            notice.error(http.ajax.defaultError40002.details)
+                        }else
+                        {
+                            notice.error(data.msg)
+                        }
                         break;
-                    default:
-                        http.ajax.showError(http.ajax.defaultError);
+                    case 400003:
+                        notice.warning(http.ajax.defaultError40003.details)
                         break;
                 }
             }
-
+        },
+        handleErrorResponse: function (jqXHR, userOptions, $dfd) {
+            if (userOptions.ignoreTheError !== true) {
+                switch (jqXHR.status) {
+                }
+            }
             $dfd.reject.apply(this, arguments);
             userOptions.error && userOptions.error.apply(this, arguments);
         },
@@ -175,6 +216,5 @@ layui.define(['jquery', 'layer'], function (exports) {
     $(document).ajaxSend(function (event, request, settings) {
         return http.ajax.ajaxSendHandler(event, request, settings);
     });
-
     exports('http', http);
 });

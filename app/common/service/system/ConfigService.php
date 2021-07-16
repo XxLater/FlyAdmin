@@ -38,33 +38,38 @@ class ConfigService extends BaseService
 
     /**
      * @param $name
+     * @param string $default
      * @return array|mixed|string
      */
-    public function get($name)
+    public function get($name,$default='')
     {
         if (is_array($name))
         {
             $data = [];
-            foreach ($name as $key)
+            foreach ($name as $key=>$item)
             {
-                if ($key)
+                if (is_array($item))
                 {
-                    $data[$key] = $this->getCache($key);
+                    $data[$key] = $this->getCache($item[0],$item[1] ?? '');
+                }else
+                {
+                    $data[$key] = $this->getCache($item);
                 }
             }
             return $data;
         }
 
-        return $this->getCache($name);
+        return $this->getCache($name,$default);
     }
 
     /**
      * @param $name
+     * @param string $default
      * @return mixed|string
      */
-    public function getCache($name)
+    public function getCache($name,$default='')
     {
-        return $this->data[$name] ?? '';
+        return $this->data[$name] ?? $default;
     }
 
     /**
@@ -75,7 +80,7 @@ class ConfigService extends BaseService
     public function setCache($key,$value):void
     {
         $this->data[$key] = $value;
-
+        
         cache('system_config',$this->data);
     }
 }

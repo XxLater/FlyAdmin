@@ -2,11 +2,11 @@
  * 树形表格 1.x
  * date:2018-07-22   License By https://easyweb.vip
  */
-layui.define(['layer', 'table'], function (exports) {
+layui.define(['layer', 'table','http'], function (exports) {
     var $ = layui.jquery;
     var layer = layui.layer;
     var table = layui.table;
-
+    var http  = layui.http
     var treetable = {
         // 渲染树形表格
         render: function (param) {
@@ -18,13 +18,20 @@ layui.define(['layer', 'table'], function (exports) {
             if (param.data) {
                 treetable.init(param, param.data);
             } else {
-                $.getJSON(param.url, param.where, function (res) {
+                let result = http.post(param.url,param.where);
+
+                result.done(function(res){
                     if(param.parseData){
                         res.data = param.parseData(res);
-                        param.data = res.data;
+                        param.data = res.data.data;
                     }
-                    treetable.init(param, res.data);
-                });
+                    treetable.init(param, res.data.data);
+                })
+
+                result.fail(function(error){
+                    layer.msg('数据获取失败');
+                    return false;
+                })
             }
         },
         // 渲染表格
@@ -65,7 +72,6 @@ layui.define(['layer', 'table'], function (exports) {
                 }
             };
             sort(param.treeSpid, tNodes);
-
             // 重写参数
             param.url = undefined;
             param.data = mData;

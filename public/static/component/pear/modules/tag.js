@@ -11,9 +11,9 @@ layui.define('jquery', function(exports){
   DEFAULT_SKIN ='layui-btn layui-btn-primary layui-btn-sm'
   ,tag = function(){
     this.config = {
-      likeHref:'../../modules/tag.css',
+      likeHref:'../../pear/css/pear-module/tag.css',
       skin: DEFAULT_SKIN,
-      tagText:'+ New Tag'
+      tagText:'添加标签'
     };
     this.configs = {}
   };
@@ -47,6 +47,10 @@ layui.define('jquery', function(exports){
     return this;
   };
 
+  tag.prototype.edit = function(othis,index)
+  {
+    call.edit(null,othis,index);
+  };
   //基础事件体
   var call = {
     //Tag点击
@@ -93,6 +97,26 @@ layui.define('jquery', function(exports){
           call.add(null, parents, options);
         }
         inpatNewTag.remove();
+        call.tagAuto(filter);
+      }).focus();
+    }
+    //Tag编辑事件
+    ,edit:function(e,othis,index)
+    {
+      var buttonNewTag = othis || $(this)
+      ,parents = $(buttonNewTag).parents(TAG_CLASS).eq(0)
+      ,filter = parents.attr('lay-filter')
+      var options = tag.configs[filter] = $.extend({}, tag.config, tag.configs[filter] || {}, options);
+      var value = $(buttonNewTag).text().replace('ဆ','')
+      var inpatNewTag = $('<div class="' + INPUT_NEW_TAG + '"><input type="text" autocomplete="off" class="layui-input" value="'+value+'"></div>');
+      inpatNewTag.addClass(options.skin);
+      $(buttonNewTag).after(inpatNewTag[0]).hide();
+      $(inpatNewTag[0]).children('.layui-input').on('blur', function () {
+        if(this.value){
+          $(buttonNewTag).text(this.value)
+        }
+        inpatNewTag.remove();
+        $(buttonNewTag).show();
         call.tagAuto(filter);
       }).focus();
     }
@@ -155,7 +179,7 @@ layui.define('jquery', function(exports){
 
   var tag = new tag(), dom = $(document);
   tag.render();
-
+  
   dom.on('click', '.' + TAG_ITEM, call.tagClick); //tag 单击事件
   exports(MOD_NAME, tag);
 });

@@ -114,7 +114,7 @@ layui.define(['table', 'jquery', 'element', 'yaml','form', 'tab', 'menu', 'frame
 							sideMenu.selectItem(id);
 						},
 						data: [{
-							id: param.tab.index.id,
+							id: param.tab.index.menu_id,
 							url: param.tab.index.href,
 							title: param.tab.index.title,
 							close: false
@@ -168,7 +168,7 @@ layui.define(['table', 'jquery', 'element', 'yaml','form', 'tab', 'menu', 'frame
 				}
 				const colorId = localStorage.getItem("theme-color");
 				let menu = localStorage.getItem("theme-menu");
-				const color = getColorById(colorId);
+				let color = getColorById(colorId);
 				if (menu === "null") {
 					menu = option.theme.defaultMenu;
 				} else {
@@ -176,6 +176,13 @@ layui.define(['table', 'jquery', 'element', 'yaml','form', 'tab', 'menu', 'frame
 						menu = option.theme.defaultMenu;
 					}
 				}
+				if(color === undefined)
+				{
+					color = new Object();
+					color.color = '#FF5722;';
+					color.id = '1'
+				}
+
 				localStorage.setItem("theme-color", color.id);
 				localStorage.setItem("theme-menu", menu);
 				localStorage.setItem("theme-color-context",color.color);
@@ -191,7 +198,6 @@ layui.define(['table', 'jquery', 'element', 'yaml','form', 'tab', 'menu', 'frame
 			}
 
 			this.colorSet = function(color) {
-				
 				let style = '';
 				// 自 定 义 菜 单 配 色
 				style +=
@@ -234,6 +240,8 @@ layui.define(['table', 'jquery', 'element', 'yaml','form', 'tab', 'menu', 'frame
 					
 				style += '.pear-social-entrance {background-color:' + color + '!important}';
 				style += '.pear-admin .pe-collaspe {background-color:' + color + '!important}';
+				config.other = new Object();
+				config.other.autoHead = '';
 				if(config.other.autoHead){
 					style += '.pear-admin .layui-header{background-color:' + color + '!important;}.pear-admin .layui-header .layui-nav .layui-nav-item>a{color:white!important;}';
 				}

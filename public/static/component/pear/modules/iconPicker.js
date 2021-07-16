@@ -45,7 +45,6 @@ layui.define(['laypage', 'form'], function (exports) {
             LIST_BOX = 'layui-iconpicker-list-box',
             selected = 'layui-form-selected',
             unselect = 'layui-unselect';
-
         var a = {
             init: function () {
                 data = common.getData[type]();
@@ -82,14 +81,14 @@ layui.define(['laypage', 'form'], function (exports) {
             createSelect: function () {
                 var oriIcon = '<i class="layui-icon">';
                 
-                // 默认图标
-                if(ORIGINAL_ELEM_VALUE === '') {
-                    if(isFontClass) {
-                        ORIGINAL_ELEM_VALUE = 'layui-icon-circle-dot';
-                    } else {
-                        ORIGINAL_ELEM_VALUE = '&#xe617;';
-                    }
-                }
+                // // 默认图标
+                // if(ORIGINAL_ELEM_VALUE === '') {
+                //     if(isFontClass) {
+                //         ORIGINAL_ELEM_VALUE = 'layui-icon-circle-dot';
+                //     } else {
+                //         ORIGINAL_ELEM_VALUE = '&#xe617;';
+                //     }
+                // }
 
                 if (isFontClass) {
                     oriIcon = '<i class="layui-icon '+ ORIGINAL_ELEM_VALUE +'">';

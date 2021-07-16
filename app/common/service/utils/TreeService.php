@@ -10,8 +10,6 @@ declare(strict_types=1);
  **/
 
 namespace app\common\service\utils;
-
-
 use app\common\service\BaseService;
 
 class TreeService extends BaseService
@@ -65,7 +63,7 @@ class TreeService extends BaseService
             }else
             {
                 $parent = &$refer[$item[$this->pid]];
-                $this->data[$key]['html'] = $this->child_html;
+                $this->data[$key]['html'] = "&nbsp;".$this->child_html;
                 $parent[$this->child][] = &$this->data[$key];
             }
         }
@@ -121,7 +119,7 @@ class TreeService extends BaseService
         if (!isset($this->data[$mid])) return [];
 
         $data = $this->data[$mid];
-
+        
         foreach ($this->data as $value)
         {
             if ($value[$this->pk] == $data[$this->pid])
@@ -133,26 +131,36 @@ class TreeService extends BaseService
         return $data;
     }
 
+    // /**
+    //  * @param $treeData
+    //  * @param $field
+    //  * @param $levelName
+    //  * @return array
+    //  */
+    // public function getTreeColumn($treeData,$field,$levelName):array
+    // {
+    //     $field_data = [];
+    //     foreach ($treeData as $value)
+    //     {
+    //         if (!isset($value[$field])) continue;
+    //         if (isset($value[$levelName]) && !empty($value[$levelName]))
+    //         {
+    //             $field_data = array_merge([$value[$field]],$this->getTreeColumn($value,$field,$levelName));
+    //         }else
+    //         {
+    //             $field_data = [$value[$field]];
+    //         }
+    //     }
+    //     return $field_data;
+    // }
+
     /**
-     * @param $treeData
-     * @param $field
-     * @param $levelName
-     * @return array
+     * 
+     *
+     * @return void
      */
-    public function getTreeColumn($treeData,$field,$levelName):array
+    public function toTreeSelect()
     {
-        $field_data = [];
-        foreach ($treeData as $value)
-        {
-            if (!isset($value[$field])) continue;
-            if (isset($value[$levelName]) && !empty($value[$levelName]))
-            {
-                $field_data = array_merge([$value[$field]],$this->getTreeColumn($value,$field,$levelName));
-            }else
-            {
-                $field_data = [$value[$field]];
-            }
-        }
-        return $field_data;
+        
     }
 }

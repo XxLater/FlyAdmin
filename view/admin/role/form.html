@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>新增角色</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="/static/component/pear/css/pear.css?v={:time()}" media="all">
+</head>
+
+<body>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">新增角色</div>
+                <div class="layui-card-body" pad15>
+                    <div class="layui-form" wid100 lay-filter="">
+                        {notempty name="$role.role_id"}
+                        <input value="{$role.role_id}" name="role_id" type="hidden">
+                        {/notempty}
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">标题</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="title" class="layui-input" value="{$role.title|default=''}" lay-verify="required" placeholder="请输入角色标题">
+                            </div>
+                        </div>
+                        
+                        <div class="layui-form-item" style="margin-bottom:0px">
+                            <label class="layui-form-label">菜单操作</label>
+                            <div class="layui-input-block">
+                                <button class="pear-btn" onclick="checkAll('#LAY-auth-tree-index')">全选</button>
+                                <button class="pear-btn" onclick="uncheckAll('#LAY-auth-tree-index')">全不选</button>
+                                <button class="pear-btn" onclick="showAll('#LAY-auth-tree-index')">全部展开</button>
+                                <button class="pear-btn" onclick="closeAll('#LAY-auth-tree-index')">全部隐藏</button>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">权限菜单</label>
+                            <div class="layui-input-block">
+                                <div id="LAY-auth-tree-index"></div>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">启用</label>
+                            <div class="layui-input-block">
+                                <input type="checkbox"  name="status" lay-skin="switch" value="{$role.status|default='0'}"
+                                {notempty name="$role"}
+                                {eq name="$role.status" value="1"}
+                                checked
+                                {/eq}
+                                {/notempty}
+                            </div>
+                            
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button class="layui-btn save" type="submit" lay-submit lay-filter="save">保存</button>
+                                <button class="layui-btn layui-btn-primary" type="reset">重置</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>  
+
+<script src="/static/component/layui/layui.js"></script>
+<script src="/static/component/pear/pear.js"></script>
+<script>
+    layui.config({
+        'version':"{:time()}"
+    })
+    layui.use(['form','jquery','button','popup','http','authtree'],function (){
+        var form = layui.form ,
+         $ = layui.jquery ,
+         layer = layui.layer ,
+         button = layui.button , 
+         popup = layui.popup,
+         http = layui.http,
+         tree = layui.authtree
+         role_id = '{$role.role_id|default=""}'
+        var is_table = $('#table',window.parent.document).length > 0;
+        var treeData = http.post('/admin/role/getRoleMenuList?role_id='+role_id);
+
+        treeData.done(function(res){
+            tree.render('#LAY-auth-tree-index', res.data,{
+                inputname: 'menu[]'
+                ,layfilter: 'lay-check-auth'
+                ,childKey: 'child'
+                ,nameKey: 'title'
+                ,valueKey:'menu_id'
+                ,autowidth: true
+                ,dblshow:true
+                ,openall:true
+                ,autoclose:false
+            });
+        })
+
+        treeData.fail(function(res){
+            layer.msg('权限菜单获取失败')
+        })
+
+        form.on('submit(save)',function (data){
+            var load = button.load({
+                elem : '.save'
+            })
+
+            if(data.field.hasOwnProperty('status'))
+            {
+                data.field.status = 1;
+            }else {
+                data.field.status = 0;
+            }
+
+            let url = role_id == '' ? '/admin/role/create' : '/admin/role/update'
+
+            let result = http.post(url,data.field)
+
+            result.done(function(res){
+                load.stop(function(){
+                    popup.success('保存成功');
+                    if(is_table)
+                    {
+                        window.parent.refresh();
+                        setTimeout(function(){
+                            parent.layer.closeAll('iframe');
+                        },1500)
+                    }
+            })
+            }).fail(function(error){
+                load.stop(function(){
+                    popup.failure('保存失败');
+                })    
+            })
+            return false;
+        })
+
+        window.checkAll = function(dst)
+        {
+            tree.checkAll(dst)
+        }
+
+        window.uncheckAll = function(dst)
+        {
+            tree.uncheckAll(dst)
+        }
+
+        window.showAll = function(dst)
+        {
+            tree.showAll(dst)
+        }
+
+        window.closeAll = function(dst)
+        {
+            tree.closeAll(dst)
+        }
+    })
+</script>

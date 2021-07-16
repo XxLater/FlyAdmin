@@ -9,7 +9,6 @@ declare(strict_types=1);
  * @github https://github.com/945462788
  **/
 
-
 namespace app\common\model\system;
 
 
@@ -19,13 +18,7 @@ class MenuModel extends BaseModel
 {
     protected $name = 'menu';
 
-    /**
-     * @return string
-     */
-    public function getPk():string
-    {
-        return 'menu_id';
-    }
+    protected $pk = 'menu_id';
 
     /**
      * @param array|string $menu_id
@@ -34,13 +27,16 @@ class MenuModel extends BaseModel
      * @throws \think\db\exception\DbException
      * @throws \think\db\exception\ModelNotFoundException
      */
-    public function getNavMenuList($menu_id):array
+    public function getNavMenuList($menu_id,$is_hidden=false):array
     {
         $where['status'] = 1;
-        $where['is_hidden'] = 0;
+        if(!$is_hidden)
+        {
+            $where['is_hidden'] = 0;
+        }
         return $this->where($where)->when($menu_id[0] != '*',function ($query) use ($menu_id){
             $query->whereIn('menu_id',$menu_id);
-        })->order('sort desc')->select()->toArray();
+        })->order('sort asc')->select()->toArray();
     }
 
     /**
@@ -52,6 +48,6 @@ class MenuModel extends BaseModel
      */
     public function pathByMenu($path)
     {
-        return $this->where('url',$path)->find();
+        return $this->where('href',$path)->find();
     }
 }

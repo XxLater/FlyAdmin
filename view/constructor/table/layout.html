@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>{$page_title}</title>
+		<link rel="stylesheet" href="/static/component/pear/css/pear.css" />
+	</head>
+	<body>
+		<body class="pear-container">
+			{notempty name="$search_item"}
+			<div class="layui-card">
+				<div class="layui-card-body">
+					<form class="layui-form" action="">
+						<div class="layui-form-item">
+
+							{foreach $search_item as $sitem}
+							<div class="layui-col-md4" style="padding-bottom: 10px;">
+								<label class="layui-form-label">{$sitem.title}</label>
+								<div class="layui-input-inline">
+							{switch name="$sitem.type"}
+
+							{case value="text"}
+								<input type="text" name="{$sitem.field}" placeholder="规则：{switch name='$sitem.operate'}{case value='='}等于{/case}{case value='<>'}不等于{/case}{case value='>'}大于{/case}{case value='>='}大于等于{/case}{case value='<'}小于{/case}{case value='=<'}小于等于{/case}{case value='%like'}前字符匹配{/case}{case value='like%'}后字符匹配{/case}{case value='%like%'}前后字符匹配{/case}{/switch}" class="layui-input">
+								<input type="hidden" name="_{$sitem.field}"  value="{$sitem.operate}">
+							{/case}
+
+							{case value="select"}
+								<select name="{$sitem.field}">
+									<option value="">请选择{$sitem.title}</option>
+									{foreach $sitem.list as $select_key =>$select_item}
+										<option value="{$select_key}">{$select_item}</option>
+									{/foreach}
+								</select>
+								<input type="hidden" name="_{$sitem.field}"  value="=">
+							{/case}
+
+							{case value="time"}
+								<input type="text" name="{$sitem.field}" class="layui-input laydate" id="date-{$sitem.field}"  data-start="{$sitem.start}" data-end="{$sitem.end}" placeholder="请选择{$sitem.title}">
+								<input type="hidden" name="_{$sitem.field}"  value="between">
+							{/case}
+
+							{/switch}
+								</div>
+								</div>
+							{/foreach}
+
+							<div class="layui-col-md4">
+								<label class="layui-form-label"></label>
+								<div class="layui-input-inline">
+									<button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="query">
+										<i class="layui-icon layui-icon-search"></i>
+										查询
+									</button>
+									<button type="reset" class="pear-btn pear-btn-md">
+										<i class="layui-icon layui-icon-refresh"></i>
+										重置
+									</button>
+								</div>
+							</div>
+
+						</div>
+					</form>
+				</div>
+			</div>
+			{/notempty}
+			<div class="layui-card">
+				<div class="layui-card-body">
+					<table id="table" lay-filter="table"></table>
+				</div>
+			</div>
+		</body>
+
+		<script type="text/html" id="blockButton">
+			{foreach $block_button as $kbutton}
+			<button class="pear-btn pear-btn-{$kbutton.color} pear-btn-md" lay-event='{:implode(",",$kbutton)}'>
+		        <i class="layui-icon {$kbutton.icon}"></i>
+		        {$kbutton.title}
+		    </button>
+			{/foreach}
+		</script>
+		
+        {notempty name="line_button"}
+		<script type="text/html" id="lineButton">
+            {foreach $line_button as $lbutton}
+			<button class="pear-btn pear-btn-{$lbutton.color} pear-btn-sm" lay-event='{:implode(",",$lbutton)}' mes="{$lbutton.tips}" onmouseout="hideTips()" onmouseover="showTips(this)" on><i class="layui-icon {$lbutton.icon}"></i></button>
+            {/foreach}
+		</script>
+        {/notempty}
+        
+        {foreach $table_item as $item}
+
+        {switch name="item.type"}
+
+		{case value="image"}
+		<script type="text/html" id="{$item.field}">
+		<div id="layer-photos-{$item.field}">
+			<img src="{{d.{$item.field}}}" layer-src="{{d.{$item.field}}}" field="{$item.field}" onclick="enlarge(this)" style="width: 34px; height: 34px;" />
+		</div>
+		</script>
+        {/case}
+
+        {case value="switch"}
+		<script type="text/html" id="{$item.field}">
+            <input type="checkbox" name="{$item.field}" value="{{d.{$item.field}}}" extend="{:implode(',',$item.extend_value)}"lay-skin="switch" title="{$item.title}" field="{$item.field}" pk="{{d.{$pk}}}" lay-filter="switch" {{d.{$item.field} == "{$item.extend_value[1]}" ? 'checked' : '' }}  {notempty name="$item.extend_text"} lay-text="{$item.extend_text[1]}|{$item.extend_text[0]}" {/notempty}>
+		</script>
+        {/case}
+
+        {/switch}
+
+        {/foreach}
+		<script src="/static/component/layui/layui.js"></script>
+		<script src="/static/component/pear/pear.js"></script>
+		<script>
+			layui.config({
+        		'version':"{:time()}"
+    		})
+			layui.use(['table', 'form', 'jquery','drawer','http','notice','laydate'], function() {
+				let table = layui.table;
+				let form = layui.form;
+				let $ = layui.jquery;
+				let drawer = layui.drawer;
+				let http = layui.http;
+				let notice = layui.notice;
+				let laydate = layui.laydate;
+                
+				let MODULE_PATH = "{$url}".split('/');
+
+                MODULE_PATH = '/'+ MODULE_PATH[1] +'/'+ MODULE_PATH[2]+'/'
+
+                var table_item = JSON.parse('{:json_encode($table_item)}')
+
+                var total_fields = "{$total_fields}".split(',')
+
+                var sort_fields = "{$sort_fields}".split(',')
+
+                var cols = []
+				
+				var search_item = JSON.parse('{:json_encode($search_item)}')
+
+				for(let skey in search_item)
+				{
+					switch(search_item[skey]['type'])
+					{
+						case 'time':
+							let timeElem = '#date-'+search_item[skey]['field'],
+							    start    = $(timeElem).attr('data-start'),
+							    end      = $(timeElem).attr('data-end'),
+							    timeParam = {
+								elem: timeElem
+								,type: 'date'
+								,range: '~'}
+							if(start)
+							{
+								timeParam.min = start
+							}
+							if(end)
+							{
+								timeParam.max = end
+							}
+							laydate.render(timeParam);
+							break;
+					}
+				}
+
+                form.on('switch(switch)',function(obj){
+                    let othis = $(this)
+                    let id = othis.attr('pk')
+                    let field   = othis.attr('field')
+                    let title   = othis.attr('title')
+                    let value   = othis.attr('value');
+                    let extend  = othis.attr('extend').split(',')
+                    value = value == extend[0] ? extend[1] : extend[0];
+					let loading = layer.load(1);
+                    let result = http.post(MODULE_PATH+'quickEdit',{field:field,value:value,"{$pk}":id})
+                    result.done(function(res){
+                        notice.success('更新成功');
+                    }).fail(function(error){
+                        notice.error('更新失败');
+                    })
+
+                    setTimeout(function(){
+                        layer.close(loading);
+                        window.refresh()
+                    },1000)
+                })
+                table.on('edit(table)',function(data){
+					layer.confirm('确定修改该列数据吗?',{
+						btn:['确定','取消']
+					},function (){
+						layer.closeAll('dialog')
+						let loading = layer.load(1);
+						let value = data.value ,
+                        	field = data.field ,
+							pk    = data.data["{$pk}"]
+						let result = http.post(MODULE_PATH+'quickEdit',{field:field,value:value,"{$pk}":pk})
+						result.done(function(res){
+							notice.success('更新成功');
+						}).fail(function(error){
+							notice.error('更新失败');
+						})
+
+						setTimeout(function(){
+							layer.close(loading);
+							window.refresh()
+						},1000)
+					},function (){
+						window.refresh()
+					}
+					);
+                })
+
+                if('{$checkbox}' == true)
+                {
+                    cols.push({type:'checkbox'})
+                }
+
+                for (let key in table_item) {
+
+                    let item = table_item[key]
+
+					// item.minWidth = item.width
+
+					// delete item.width
+
+                    if(total_fields.includes(item.field))
+                    {
+                        item.totalRow = true;
+                    }
+
+                    if(sort_fields.includes(item.field))
+                    {
+                        item.sort = true;
+                    }
+
+					switch(table_item[key]['type'])
+                    {
+                        case 'text':
+                            delete item.type
+                        break;
+						case 'image':
+                            item.templet = '#'+item.field
+                        break;    
+                        case 'edit':
+                            item.edit = true;
+                        break;
+                        case 'switch':
+                            item.templet = '#'+item.field
+                        break;
+                        case 'lineButton':
+                            item.templet = '#lineButton'
+                        break;    
+                    }
+
+                    cols.push(item)
+
+                }
+
+                if('{$checkbox}' == true)
+                {
+                    cols[1].totalRowText = '合计';
+                }
+                else {
+                    cols[0].totalRowText = '合计';
+                }
+
+                cols = [cols]    
+                let table_param = {
+					elem: '#table',
+                    method: 'POST',
+					url: '{$url}',
+					page: true,
+					cols: cols,
+					skin: 'line',
+					toolbar: '#blockButton',
+					defaultToolbar: [{
+						title:'刷新',
+						layEvent: 'refresh',
+						icon: 'layui-icon-refresh'
+					},'refresh','filter', 'print', 'exports']
+                    ,parseData: function(res){ //res 即为原始返回的数据
+                        return {
+                        "code": res.code, //解析接口状态
+                        "msg": res.msg, //解析提示文本
+                        "count": res.data.total, //解析数据长度
+                        "data": res.data.data //解析数据列表
+                        };
+                    }
+                    ,response: {
+                         statusName: 'code' //规定数据状态的字段名称，默认：code
+                        ,statusCode: 1 //规定成功的状态码，默认：0
+                        ,msgName: 'msg' //规定状态信息的字段名称，默认：msg
+                        ,dataName: 'data' //规定数据列表的字段名称，默认：data
+                    }
+                    ,initSort: {
+                        field: '{$pk}' //排序字段，对应 cols 设定的各字段名
+                        ,type: 'desc' //排序方式  asc: 升序、desc: 降序、null: 默认排序
+                    }
+				}
+
+                if(total_fields[0] != '' && total_fields.length > 0)
+                {
+                    table_param.totalRow = true;
+                }
+
+				table.render(table_param);
+
+				table.on('tool(table)', function(obj) {
+					let param = obj.event.split(',') ,
+						title = param[0] ,
+						type  = param[1] ,
+						url   = MODULE_PATH+param[4]
+						switch(type)
+						{
+							case 1:case'1':
+								let where = {"{$pk}":obj.data['{$pk}']}
+								window.request(url,where)
+							break;
+							case 2:case'2':	
+								url += '?{$pk}='+obj.data['{$pk}']
+								window.openIframe(url,title)
+							break;
+						}
+				});
+
+				table.on('toolbar(table)', function(obj) {
+					if (obj.event === 'refresh') {
+						window.refresh();
+					}
+					let param = obj.event.split(',') ,
+						title = param[0] ,
+						type  = param[1] ,
+						url   = MODULE_PATH+param[4],
+						check = param[5]
+						let data = table.checkStatus(obj.config.id).data;
+
+						if(check)
+						{
+							if (data.length === 0) {
+								layer.msg("未选中数据", {
+									icon: 3,
+									time: 1000
+								});
+								return false;
+							}
+						}
+
+						let value = "";
+							for (let i = 0; i < data.length; i++) {
+								value += data[i]["{$pk}"] + ",";
+							}
+						value = value.substr(0, value.length - 1);
+
+						switch(type)
+						{
+							case 1:case'1':
+								let where = {"{$pk}":value}
+								window.request(url,where)
+							break;
+							case 2:case'2':	
+								window.openIframe(url,title)
+							break;
+							case 3:case'3':
+								url = param[4]+'?{$pk}='+value;
+								window.openIframe(url,title)
+							break;		
+							break;
+						}
+				});
+
+				form.on('submit(query)', function(data) {
+					table.reload('table', {
+						where: data.field
+					})
+					return false;
+				});
+
+				form.on('switch(user-enable)', function(obj) {
+					layer.tips(this.value + ' ' + this.name + '：' + obj.elem.checked, obj.othis);
+				});
+
+				//弹窗
+				window.openIframe = function(url,title) {
+					layer.open({
+						type: 2,
+						title: title,
+						maxmin: true,
+						area: ['80%', '90%'],
+						content: url
+					}); 
+				}
+
+				//发起请求
+				window.request = function(url,where) {
+					layer.confirm('确定进行该操作吗?', {
+						icon: 3,
+						title: '提示'
+					}, function(index) {
+						layer.close(index);
+						let loading = layer.load(1);	
+						let result  = http.post(url,where)
+						result.done(function(res){
+                        	notice.success('操作成功');
+						}).fail(function(error){
+							notice.error('操作失败');
+						})
+
+                    setTimeout(function(){
+                        layer.close(loading);
+                        window.refresh()
+                    },1000)
+					});
+				}
+				
+				//重新加载表格
+				window.refresh = function(param) {
+					table.reload('table');
+				}
+
+				//显示标签
+                window.showTips = function(othis){
+                    let tips = $(othis).attr('mes')
+                    layer.tips(tips,othis)
+                }
+
+                window.hideTips = function(field,value)
+                {
+					layer.closeAll('tips')
+                }
+
+				window.enlarge = function(othis)
+				{
+					let field = $(othis).attr('field')
+					layer.photos({
+						photos: '#layer-photos-'+field
+						,anim: 5
+					}); 
+				}
+			})
+		</script>
+	</body>
+</html>

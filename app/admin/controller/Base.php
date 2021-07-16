@@ -12,21 +12,21 @@ declare(strict_types=1);
 
 namespace app\admin\controller;
 
-
-use app\BaseController;
-use app\common\service\system\RoleService;
-use app\common\middleware\AdminMiddleware;
+use app\admin\middleware\AdminCheckMiddleware;
+use app\admin\middleware\AdminMiddleware;
 use think\App;
-
+use app\common\controller\Base as BaseController;
 class Base extends BaseController
 {
-
     protected $middleware = [AdminMiddleware::class];
+
+    protected $service;
+
+    //v2 删除
+    // use ConstructorTrait;
 
     public function __construct(App $app)
     {
         parent::__construct($app);
-//        $this->request->role_id = 1;
-//        $menu_list  = RoleService::instance()->adminAuth($this->request->role_id);
     }
 }

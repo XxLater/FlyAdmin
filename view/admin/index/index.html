@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-		<title> Pear Admin Layui </title>
+		<title>{:system_config('site_title')}</title>
 		<!-- 依 赖 样 式 -->
 		<link rel="stylesheet" href="/static/component/pear/css/pear.css" />
 		<!-- 加 载 样 式-->
@@ -28,17 +28,17 @@
 				<div id="control" class="layui-layout-control"></div>
 				<ul class="layui-nav layui-layout-right">
 					<li class="layui-nav-item layui-hide-xs"><a href="#" class="fullScreen layui-icon layui-icon-screen-full"></a></li>
-					<li class="layui-nav-item layui-hide-xs"><a href="http://www.pearadmin.com" class="layui-icon layui-icon-website"></a></li>
+					<li class="layui-nav-item layui-hide-xs"><a href="https://github.com/945462788" class="layui-icon layui-icon-website"></a></li>
 					<li class="layui-nav-item">
 						<!-- 头 像 -->
 						<a href="javascript:;">
-							<img src="/static/admin/images/avatar.jpg" class="layui-nav-img">
-							就眠仪式
+							<img src="{$user.avatar}" class="layui-nav-img">
+							{$user.nickname|default=$user.username}
 						</a>
 						<!-- 功 能 菜 单 -->
 						<dl class="layui-nav-child">
-							<dd><a user-menu-url="view/system/person.html" user-menu-id="5555" user-menu-title="基本资料">基本资料</a></dd>
-							<dd><a href="login.html">注销登录</a></dd>
+							<dd><a user-menu-url="/admin/user/person" user-menu-id="5555" user-menu-title="基本资料">基本资料</a></dd>
+							<dd><a href="javascript:;" class="logout">注销登录</a></dd>
 						</dl>
 					</li>
 					<!-- 主 题 配 置 -->
@@ -81,13 +81,14 @@
 			layui.config({
 				'version':"{:time()}"
 			})
-			layui.use(['admin','jquery','convert'], function() {
+			layui.use(['admin','jquery','convert','http'], function() {
 				var admin = layui.admin;
 				var $ = layui.jquery;
 				var convert = layui.convert;
+				var http = layui.http
 				
 				var image = new Image();
-				image.src = "/static/admin/images/avatar.jpg";
+				image.src = "{$user.avatar}";
 				image.onload = function(){
 						$(".layui-nav-img").attr("src", convert.imageToBase64(image));
 				}
@@ -97,6 +98,19 @@
 				admin.setConfigType("json");
 				admin.setConfigPath("{:url('admin/config/adminConfig')}");
 				admin.render();
+
+				$(document).on('click','.logout',function (){
+					layer.confirm('确定要注销登陆吗？', {
+						btn: ['确定','取消'] 
+					}, function(){
+						layer.msg('欢迎下次登陆')
+						http.get('/admin/auth/logout').done(function(res){
+							window.location.href = '/admin'
+						}).fail(function(error){
+							window.location.href = '/admin'
+						})
+					});
+        		})
 			})
 		</script>
 	</body>

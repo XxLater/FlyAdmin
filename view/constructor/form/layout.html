@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{$page_title|default=":system_config('site_title')"}</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="/static/component/pear/css/pear.css?v={:time()}" media="all">
+</head>
+<style>
+    .layui-form-label
+    {
+        height: 100%;
+    }
+</style>
+<body>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">{$page_title|default=":system_config('site_title')"}</div>
+                <div class="layui-card-body" pad15>
+                    <div class="layui-form" wid100 lay-filter="">
+
+                        {foreach $form_item as $key=>$item}
+                        {switch name="$item.type"}
+
+                        {case value="text"}
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">{$item.title}</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="{$item.field}"
+                                       lay-verify="{notempty name='$item.require'}required{/notempty}{notempty name='$item.verifyRule'}|{$item.verifyRule}{/notempty}"
+                                       value="{$item.default|default=''}" class="layui-input"
+                                placeholder="{empty name="$item.tips"}请输入{$item.title}{else/}{$item.tips}{/empty}">
+                            </div>
+
+                        </div>
+                        {/case}
+
+                        {case value="icon"}
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">{$item.title}</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="{$item.field}" name="{$item.field}"  value="{$item.default|default=''}" lay-filter="iconPicker">
+                            </div>
+                        </div>
+                        {/case}
+
+                        {case value="hide"}
+                        <input type="hidden" name="{$key}" value="{$item.default|default=''}">
+                        {/case}
+
+                        {case value="switch"}
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">{$item.title}</label>
+                            <div class="layui-input-block">
+                                <input type="checkbox"  name="{$item.field}" lay-skin="switch"
+                                        {php}
+                                        if($item['default'])
+                                        {
+                                        $key = array_search($item['default'],$item['extend_data']);
+                                        if($key !== false)
+                                        {
+                                        $value = $item['extend_data'][$key];
+                                        if($item['extend_data'][1] == $value)  echo 'checked     ';
+                                        echo 'value='."$value";
+                                        }
+                                        }
+                                        {/php}
+                                {notempty name="$item.option"} lay-text="{$item.option.1}|{$item.option.0}" {/notempty}
+                                >
+                            </div>
+                            {notempty name="$item.tips"}
+                            <div class="layui-form-mid layui-word-aux">{$item.tips}</div>
+                            {/notempty}
+                        </div>
+                        {/case}
+
+                        {case value="select"}
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">{$item.title}</label>
+                            <div class="layui-input-block">
+                                <select name="{$item.field}" {if $item.require} lay-verify="required" {/if} lay-search xm-select-skin="normal">
+                                    <option value="">{empty name="$item.tips"}请选择{$item.title}{else/}{$item.tips}{/empty}</option>
+                                    {foreach $item.option as $key=>$select_option}
+                                    {if empty($select_option.name) && empty($select_option.value)}
+                                    <option value="{$key}"
+                                            {if is_numeric($item.default) || !empty($item.default)}
+                                            {eq name="$item.default" value="$key"}
+                                            selected
+                                            {/eq}
+                                            {/if}
+                                    >{$select_option}</option>
+                                    {else/}
+                                    <option value="{$select_option.value}"
+                                            {if is_numeric($item.default) || !empty($item.default)}
+                                            {eq name="$item.default" value="$select_option.value"}
+                                            selected
+                                            {/eq}
+                                            {/if}
+                                    >{$select_option.name}</option>
+                                    {/if}
+                                    {/foreach}
+                                </select>
+                            </div>
+                        </div>
+                        {/case}
+
+                        {case value="treeSelect"}
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">{$item.title}</label>
+                            <div class="layui-input-block">
+                                <select name="{$item.field}" value="{$item.default|default=''}" id="{$item.field}" {if $item.require} lay-verify="required" {/if} lay-search xm-select-skin="normal">
+                                    <option value=''>{empty name="$item.tips"}请选择{$item.title}{else/}{$item.tips}{/empty}</option>
+                                    {$item.html|raw}
+                                </select>
+                            </div>
+                        </div>
+                        {/case}
+
+
+                        {case value="checkbox"}
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">{$item.title}</label>
+                            <div class="layui-input-block">
+                                {php}
+                                if(is_string($item['default']) || is_numeric($item['default']))
+                                {
+                                $item['default'] = (string)$item['default'];
+                                $item['default'] = explode(',',$item['default']);
+                                }
+                                {/php}
+                                {foreach $item.option as $key=>$box_option}
+                                {if empty($box_option.name) && empty($box_option.value)}
+                                <input type="checkbox" lay-skin="primary" name="{$item.field}" title="{$box_option}"
+                                {if $item.require} lay-verify='checkbox' {/if}
+                                value="{$key}" data-title="{$item.title}"
+                                {if is_array($item.default)}
+                                {in name="$key" value="$item.default"}checked{/in}
+                                {/if}
+                                >
+                                {else/}
+                                <input type="checkbox" lay-skin="primary" name="{$item.field}" title="{$box_option.name}"
+                                       {if $item.require} lay-verify='checkbox' {/if}
+                                value="{$box_option.value}" data-title="{$item.title}"
+                                {if is_array($item.default)}
+                                {in name="$box_option.value" value="$item.default"}checked{/in}
+                                {/if}
+                                >
+                                {/if}
+                                {/foreach}
+                            </div>
+                            {notempty name="$item.tips"}
+                            <div class="layui-form-mid layui-word-aux">{$item.tips}</div>
+                            {/notempty}
+                        </div>
+                        {/case}
+
+                        {case value="radio"}
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">{$item.title}</label>
+                            <div class="layui-input-block">
+                                {foreach $item.option as $key=>$radio_option}
+                                {if empty($radio_option.name) && empty($radio_option.value)}
+                                <input type="radio"  name="{$item.field}" title="{$radio_option}"  value="{$key}" {if $item.require} lay-verify='checkbox' {/if}
+                                value="{$key}" data-title="{$item.title}"  {eq name="$key" value="$item.default"} checked {/eq}>
+                                {else/}
+                                <input type="radio"  name="{$item.field}" title="{$radio_option.name}" value="{$radio_option.value}" {if $item.require} lay-verify='checkbox' {/if}
+                                value="{$key}" data-title="{$item.title}" {eq name="$radio_option.value" value="$item.default"} checked {/eq}
+                                >
+                                {/if}
+                                {/foreach}
+                            </div>
+                            {notempty name="$item.tips"}
+                            <div class="layui-form-mid layui-word-aux">{$item.tips}</div>
+                            {/notempty}
+                        </div>
+                        {/case}
+
+                        {case value="password"}
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">{$item.title}</label>
+                            <div class="layui-input-block">
+                                <input type="password" name="{$item.field}"
+                                       lay-verify="{notempty name='$item.require'}required{/notempty}"
+                                       value="{$item.default|default=''}" class="layui-input"
+                                       placeholder="{empty name="$item.tips"}请输入{$item.title}{else/}{$item.tips}{/empty}">
+                            </div>
+                        </div>
+                        {/case}
+
+                        {case value="confirm"}
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">{$item.title}</label>
+                            <div class="layui-input-block">
+                                <input type="{if $item.isPassword}password{else/}text{/if}" name="{$item.field}"
+                                       lay-verify="required|confirm"
+                                       value="{$item.default|default=''}" class="layui-input"
+                                       data-confirm="{$item.confirmField}"
+                                       placeholder="{empty name="$item.tips"}请输入{$item.title}{else/}{$item.tips}{/empty}">
+                            </div>
+                        </div>
+                        {/case}
+
+                        {case value="tinymce"}
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">{$item.title}</label>
+                            <div class="layui-input-block">
+                                <div class="layui-tinymce-{$item.field}">{notempty name="$item.default"}{$item.default|raw}{/notempty}</div>
+                                {notempty name="$item.tips"}
+                                <div class="layui-form-mid layui-word-aux">{$item.tips}</div>
+                                {/notempty}
+                            </div>
+                        </div>
+                        {/case}
+
+                        {case value="textarea"}
+
+                        <div class="layui-form-item layui-form-text">
+                            <label class="layui-form-label">{$item.title}</label>
+                            <div class="layui-input-block">
+                                <textarea name="{$item.field}" placeholder="{empty name='$item.tips'}请输入{$item.title}{else/}{$item.tips}{/empty}" class="layui-textarea" {notempty name="$item.require"} lay-verify="required" {/notempty}>{notempty name="$item.default"}{$item.default}{/notempty}</textarea>
+                            </div>
+                        </div>
+
+                        {/case}
+
+                        {case value="image"}
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">{$item.title}</label>
+                            <div class="layui-upload-image-{$item.field}"></div>
+                            {notempty name="$item.tips"}
+                            <span class="layui-form-mid layui-word-aux">{$item.tips}</span>
+                            {/notempty}
+                        </div>
+                        {/case}
+
+                        {case value="images"}
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">{$item.title}</label>
+                            <div class="layui-upload-image-{$item.field}"></div>
+                            {notempty name="$item.tips"}
+                            <div class="layui-form-mid layui-word-aux">{$item.tips}</div>
+                            {/notempty}
+                        </div>
+                        {/case}
+                        
+                        {case value="tag"}
+                        {php}
+                        if(isset($item['default']))
+                        {
+                            if(is_string($item['default']))
+                            {
+                                $item['option'] = explode(',',$item['default']);
+                            }
+                        }
+                        if(is_string($item['option']))
+                        {
+                            $item['option'] = explode(',',$item['option']);
+                        }
+                        {/php}
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">{$item.title}</label>
+                            <div class="layui-btn-container tag" lay-filter="tag" lay-allowclose="true" lay-newTag="true" id="{$item.field}">
+                                {foreach $item.option as $tag_option}
+                                <button  type="button" class="tag-item layui-btn layui-btn-primary layui-btn-sm">{$tag_option}</button>
+                                {/foreach}
+                            </div>
+                        </div>
+                        {/case}
+
+                        {case value="date"}
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">{$item.title}</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="{$item.field}" id="{$item.field}"
+                                       lay-verify="date"
+                                       value="{$item.default|default=''}" class="layui-input"
+                                placeholder="{empty name="$item.tips"}请输入{$item.title}{else/}{$item.tips}{/empty}">
+                            </div>
+
+                        </div>
+                        {/case}
+
+                        {/switch}
+                        {/foreach}
+
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button class="layui-btn save" lay-submit lay-filter="save">确认保存</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="/static/component/layui/layui.js"></script>
+<script src="/static/component/pear/pear.js"></script>
+<script>
+    layui.config({
+        'version':"{:time()}"
+    })
+    layui.use(['form','jquery','tinymce','image','zoom','button','popup','tag','laydateTab','http','iconPicker'],function (){
+        var form = layui.form ,
+         $ = layui.jquery ,
+         layer = layui.layer ,
+         tinymce = layui.tinymce ,
+         image = layui.image ,
+         zoom = layui.zoom ,
+         button = layui.button , 
+         popup = layui.popup,
+         tag = layui.tag ,
+         laydate = layui.laydateTab,
+         http = layui.http,
+         icon = layui.iconPicker;
+        var form_item = JSON.parse('{:json_encode($form_item)}')
+        var tinymce_list = [];
+        var is_table = $('#table',window.parent.document).length > 0;
+        if (is_table){   
+            $('.layui-layer-title',window.parent.document).text('{$page_title}')
+            $('.layui-card-header').remove()
+        }
+
+        $(document).on('click','.cupload-image-box',function (){
+            zoomImage($(this))
+        })
+
+        //初始化
+        for (let item in form_item)
+        {
+            let value = form_item[item]
+
+            //富文本初始化
+            if (value.type === 'tinymce')
+            {
+                tinymce_list[value.field] = tinymce.render({
+                    elem : '.layui-tinymce-'+value.field,
+                    height:600,
+                    relative_urls : false,
+                    remove_script_host : false
+                })
+            }
+
+            //图片上传
+            if (value.type === 'image')
+            {
+                let ele = {
+                    ele:'.layui-upload-image-'+value.field,
+                    num:1,
+                    name:value.field,
+                }
+
+                if (value.default.length !== 0)
+                {
+                    ele.data = [value.default]
+                }
+
+                image(ele)
+            }
+
+            //多图片上传
+            if (value.type === 'images')
+            {
+                let ele = {
+                    ele:'.layui-upload-image-'+value.field,
+                    num:value.num || 10,
+                    name:value.field,
+                }
+
+                if (value.default.length !== 0)
+                {
+                    if (value.default  instanceof Array)
+                    {
+                        ele.data = value.default
+                    }else
+                    {
+                        ele.data = value.default.split(',')
+                    }
+                }
+
+                image(ele)
+            }
+
+            if(value.type == 'date')
+            {
+                laydate.render({
+                    elem: '#'+value.field,
+                })
+            }
+
+            if(value.type == 'icon')
+            {
+                icon.render({
+                    elem: '#'+value.field,
+					type: 'fontClass',
+					search: true,
+					page: false,
+                })
+            }
+
+            // if(value.type == 'treeSelect')
+            // {
+            //     let children = $('#'+value.field).children().each(function(){
+            //         if($(this).val() == value.default)
+            //         {
+            //             $(this).attr('selected',true)
+            //         }
+            //     })
+            // }
+        }
+        //tag初始化
+        tag.render("test", {
+					skin: 'layui-btn layui-btn-primary layui-btn-sm layui-btn-radius', //标签样式
+					tagText: '<i class="layui-icon layui-icon-add-1"></i>添加标签' //标签添加按钮提示文本
+		});
+
+        tag.on('click(tag)', function(data) {
+				tag.edit(this,data.index)
+		});
+
+        //表单验证
+        form.verify({
+            checkbox:function (value,input) {
+                let name = $(input).attr('name');
+                if ($('input[name='+name+']:checked').length < 1)
+                {
+
+                    return '请'+$(input).data('title')+'最少选择一个'
+                }
+            },
+            confirm:function (value,input) {
+                let name = $(input).data('confirm');
+                if (value !== $('input[name='+name+']').val())
+                {
+                    return '两次输入不一致'
+                }
+            }
+        });
+
+        //表单提交
+        form.on('submit(save)',function (data){
+
+            for (let item in form_item)
+            {
+                let value = form_item[item]
+
+                if (value.type === 'switch')
+                {
+                    data.field[value.field] = data.field[value.field] ? value.extend_data[1] : value.extend_data[0]
+                }
+
+                if (value.type === 'checkbox')
+                {
+                    data.field[value.field] = getCheckboxValue(value.field)
+                }
+
+                if (value.type === 'tinymce')
+                {
+                    let edit = tinymce_list[value.field];
+                    let editValue = edit.getContent()
+                    if (value.require && editValue.length === 0)
+                    {
+                        popup.failure('请输入'+value.title)
+                        return false;
+                    }
+                    data.field[value.field] = editValue
+                }
+
+                if (value.type === 'image')
+                {
+                    if (value.require &&  data.field[value.field] === undefined)
+                    {
+                        popup.failure('请上传'+value.title)
+                        return false;
+                    }
+
+                }
+
+                if (value.type === 'images')
+                {
+                    if (value.require && data.field[value.field] == undefined)
+                    {
+                        popup.failure('请上传'+value.title);
+                        return false;
+                    }
+
+                    let images = [];
+
+                    $("[name="+ value.field+"]").each(function (){
+                        images.push($(this).attr('value'));
+                    });
+
+                    if (value.least !== false && value.least > images.length)
+                    {
+                        popup.failure(value.title+'请最少上传'+value.least+'张图片');
+                        return false;
+                    }
+                    data.field[value.field] = images;
+                }
+
+                if(value.type == 'tag')
+                {
+                    let tags = getTagValue(value.field);
+
+                    if(tags.length == 0 && value.require)
+                    {
+                        popup.failure(value.title+'请输入最少一个标签');
+
+                        return false;
+                    }
+
+                    data.field[value.field] = tags;
+                }
+
+                if(value.type == 'icon')
+                {
+                    if(value.require && data.field[value.field] == '')
+                    {
+                        popup.failure('请选择'+value.title);
+
+                        return false;
+                    }
+                }
+            }
+
+            var result;
+
+            //按钮load状态
+            var load = button.load({
+                elem : '.save'
+            })
+
+            if("{$method}" == 'GET')
+            {
+                result = http.get("{$url}",data.field)
+            }
+
+            if("{$method}" == 'POST')
+            {
+                result = http.post("{$url}",data.field)
+            }
+
+            result.done(function(res){
+                load.stop(function(){
+                    popup.success('保存成功');
+                    if(is_table)
+                    {
+                        window.parent.refresh();
+                        setTimeout(function(){
+                            parent.layer.closeAll('iframe');
+                        },1500)
+                    }
+            })
+            }).fail(function(error){
+                load.stop(function(){
+                    popup.failure('保存失败');
+                })    
+            })
+            return false;
+        })
+
+        //获取多选框的值
+        function getCheckboxValue(name) {
+            let result = [];
+            $("[name='" + name + "']:checkbox").each(function () {
+                if ($(this).is(":checked")) {
+                    result.push($(this).attr("value"));
+                }
+            });
+            return result;
+        };
+
+        function getTagValue(id)
+        {
+            let result = [];
+
+            $('#'+id).children().each(function(index,item){
+                let value = $(item).text().replace('ဆ','')
+                if(value !== '添加标签')
+                {
+                    result.push(value)
+                }
+            })
+
+            return result;
+        }
+
+        //查看图片
+        function zoomImage(this_)
+        {
+            var images = this_.parents('.cupload-image-list').find('.cupload-image-box');
+            var imagesArr = new Array();
+            $.each(images, function (i, image) {
+                imagesArr.push($(image).children('img').attr('src'));
+            });
+            zoom({
+                images: imagesArr, //需要查看的图片，数据类型为数组
+                initImageIndex: 1, //初始查看第几张图片，默认1
+                scrollSwitch: true //是否使用鼠标滚轮切换图片，默认false
+            });
+        }
+    })
+</script>
+</body>
+</html>

@@ -10,6 +10,9 @@ declare(strict_types=1);
  **/
 namespace app\admin\controller;
 
+use app\admin\middleware\AdminCheckMiddleware;
+use app\admin\service\user\UserService;
+
 /**
   * @title 仪表盘
   * @auth
@@ -25,6 +28,7 @@ class Index extends Base
      */
     public function index()
     {
+        $this->assign('user',UserService::instance()->find(is_login()));
         $this->fetch();
     }
 

@@ -14,19 +14,19 @@ layui.define(['jquery'],function (exports) {
 
     var settings = {
         base_url: modPath
-        , images_upload_url: '/rest/doUpload'//图片上传接口
+        , images_upload_url: '/admin/api/upload_image'//图片上传接口
         , language: 'zh_CN'
         , response: {
             statusName: response.statusName || 'code'//返回状态字段
             , msgName: response.msgName || 'msg'//返回消息字段
             , dataName: response.dataName || 'data'//返回的数据
             , statusCode: response.statusCode || {
-                ok: 0//数据正常
+                ok: 1//数据正常
             }
         }
         , success: function (res, succFun, failFun) {//上传完成回调
             if (res[this.response.statusName] == this.response.statusCode.ok) {
-                succFun('/showImage/' + res[this.response.dataName][0]['id']);
+                succFun(res[this.response.dataName]['path']);
             } else {
                 failFun(res[this.response.msgName]);
             }
@@ -67,9 +67,9 @@ layui.define(['jquery'],function (exports) {
 
             var formData = new FormData();
 
-            formData.append('target', 'edit');
+            // formData.append('target', 'edit');
 
-            formData.append('edit', blobInfo.blob());
+            formData.append('image', blobInfo.blob());
 
             var ajaxOpt = {
 

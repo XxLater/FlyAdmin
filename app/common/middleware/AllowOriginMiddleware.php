@@ -41,6 +41,8 @@ class AllowOriginMiddleware extends BaseMiddleware
     {
         $origin = $request->header('origin');
         $this->header['Access-Control-Allow-Origin'] = $origin;
+        p($request->param());
+
         if ($request->method(true) === 'OPTIONS') {
             throw new HttpResponseException(Response::create()->code(200)->header($this->header));
         }

@@ -19,11 +19,5 @@ class ConfigModel extends BaseModel
 {
     protected $name = 'config';
 
-    /**
-     * @return string
-     */
-    public function getPk():string
-    {
-        return 'config_id';
-    }
+    protected $pk   = 'config_id';
 }

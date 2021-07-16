@@ -29,7 +29,6 @@ layui.define(['table', 'jquery', 'element'], function(exports) {
 		}
 		if (option.async) {
 			getData(option.url).then(function(data) {
-				console.log(data.data)
 				option.data = data.data;
 				renderMenu(option);
 			});
@@ -161,6 +160,14 @@ layui.define(['table', 'jquery', 'element'], function(exports) {
 			'" class="layui-nav arrow   pear-menu layui-nav-tree pear-nav-tree">'
 		$.each(option.data, function(i, item) {
 			item.icon = 'layui-icon '+item.icon
+			item.openType = '_iframe'
+			if (item.child && item.child.length > 0)
+			{
+				item.type = 0;
+			}else
+			{
+				item.type =1;
+			}
 			var content = '<li class="layui-nav-item" >';
 			if (i == option.defaultOpen) {
 				content = '<li class="layui-nav-item layui-nav-itemed" >';
@@ -175,12 +182,12 @@ layui.define(['table', 'jquery', 'element'], function(exports) {
 			}
 			if (item.type == 0) {
 				// 创 建 目 录 结 构
-				content += '<a  href="javascript:;" menu-type="' + item.type + '" menu-id="' + item.id + '" href="' + href +
+				content += '<a  href="javascript:;" menu-type="' + item.type + '" menu-id="' + item.menu_id + '" href="' + href +
 					'" ' + target + '><i class="' + item.icon + '"></i><span>' + item.title +
 					'</span></a>';
 			} else if (item.type == 1) {
 				content += '<a class="' + className + '" menu-type="' + item.type + '" menu-url="' + item.href + '" menu-id="' +
-					item.id +
+					item.menu_id +
 					'" menu-title="' + item.title + '"  href="' + href + '"  ' + target + '><i class="' + item.icon +
 					'"></i><span>' + item.title + '</span></a>';
 			}
@@ -208,21 +215,21 @@ layui.define(['table', 'jquery', 'element'], function(exports) {
 			var menuItem = '';
 			var controlItem = '';
 			if (index === option.defaultMenu) {
-				controlItem = '<li pear-href="' + item.href + '" pear-title="' + item.title + '" pear-id="' + item.id +
+				controlItem = '<li pear-href="' + item.href + '" pear-title="' + item.title + '" pear-id="' + item.menu_id +
 					'" class="layui-this layui-nav-item"><a href="#">' + item.title + '</a></li>';
-				menuItem = '<ul  pear-id="' + item.id + '" lay-filter="' + option.elem +
+				menuItem = '<ul  pear-id="' + item.menu_id + '" lay-filter="' + option.elem +
 					'" class="layui-nav arrow layui-nav-tree pear-nav-tree">';
 				// 兼容移动端
 				controlPe += '<li class="layui-nav-item"><a class="pe-title" href="javascript:;" >' + item.title + '</a>';
-				controlItemPe += '<dd  pear-href="' + item.href + '" pear-title="' + item.title + '" pear-id="' + item.id +
+				controlItemPe += '<dd  pear-href="' + item.href + '" pear-title="' + item.title + '" pear-id="' + item.menu_id +
 					'"><a href="javascript:void(0);">' + item.title + '</a></dd>';
 			} else {
-				controlItem = '<li  pear-href="' + item.href + '" pear-title="' + item.title + '" pear-id="' + item.id +
+				controlItem = '<li  pear-href="' + item.href + '" pear-title="' + item.title + '" pear-id="' + item.menu_id +
 					'" class="layui-nav-item"><a href="#">' + item.title + '</a></li>';
-				menuItem = '<ul style="display:none" pear-id="' + item.id + '" lay-filter="' + option.elem +
+				menuItem = '<ul style="display:none" pear-id="' + item.menu_id + '" lay-filter="' + option.elem +
 					'" class="layui-nav arrow layui-nav-tree pear-nav-tree">';
 
-				controlItemPe += '<dd pear-href="' + item.href + '" pear-title="' + item.title + '" pear-id="' + item.id +
+				controlItemPe += '<dd pear-href="' + item.href + '" pear-title="' + item.title + '" pear-id="' + item.menu_id +
 					'"><a href="javascript:void(0);">' + item.title + '</a></dd>';
 
 			}
@@ -241,13 +248,13 @@ layui.define(['table', 'jquery', 'element'], function(exports) {
 				// 判 断 菜 单 类 型 0 是 不可跳转的目录 1 是 可 点 击 跳 转 的 菜 单
 				if (note.type == 0) {
 					// 创 建 目 录 结 构
-					content += '<a  href="' + href + '" ' + target + ' menu-type="' + note.type + '" menu-id="' + note.id +
+					content += '<a  href="' + href + '" ' + target + ' menu-type="' + note.type + '" menu-id="' + note.menu_id +
 						'" ><i class="' + note.icon + '"></i><span>' + note.title +
 						'</span></a>';
 				} else if (note.type == 1) {
 					// 创 建 菜 单 结 构
 					content += '<a ' + target + ' class="' + className + '" menu-type="' + note.type + '" menu-url="' + note.href +
-						'" menu-id="' + note.id +
+						'" menu-id="' + note.menu_id +
 						'" menu-title="' + note.title + '" href="' + href + '"><i class="' + note.icon +
 						'"></i><span>' + note.title + '</span></a>';
 				}
@@ -288,6 +295,15 @@ layui.define(['table', 'jquery', 'element'], function(exports) {
 		if (obj.child != null && obj.child.length > 0) {
 			// 遍 历 子 项 目
 			$.each(obj.child, function(i, note) {
+				note.icon = 'layui-icon '+note.icon
+				note.openType = '_iframe'
+				if (note.child && note.child.length > 0)
+				{
+					note.type = 0;
+				}else
+				{
+					note.type =1;
+				}
 				// 创 建 子 项 结 构
 				content += '<dd>';
 				var href = "javascript:;";
@@ -301,12 +317,12 @@ layui.define(['table', 'jquery', 'element'], function(exports) {
 				// 判 断 子 项 类 型
 				if (note.type == 0) {
 					// 创 建 目 录 结 构
-					content += '<a ' + target + '  href="' + href + '" menu-type="' + note.type + '" menu-id="' + note.id +
+					content += '<a ' + target + '  href="' + href + '" menu-type="' + note.type + '" menu-id="' + note.menu_id +
 						'"><i class="layui-icon' + note.icon + '"></i><span>' + note.title + '</span></a>';
 				} else if (note.type == 1) {
 					// 创 建 菜 单 结 构
 					content += '<a ' + target + ' class="' + className + '" menu-type="' + note.type + '" menu-url="' + note.href +
-						'" menu-id="' + note.id + '" menu-title="' + note.title + '" menu-icon="' + note.icon + '" href="' + href +
+						'" menu-id="' + note.menu_id + '" menu-title="' + note.title + '" menu-icon="' + note.icon + '" href="' + href +
 						'" ><i class="layui-icon' + note.icon + '"></i><span>' + note.title + '</span></a>';
 				}
 				// 加 载 子 项 目 录
