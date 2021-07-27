@@ -619,6 +619,7 @@ class ConstructorFormService extends BaseService
 
             $this->item[$key]['default'] = $value;
         }
+        
         if (isset($data[$pk]) && !empty($data[$pk])) $this->addHide($pk,$data[$pk]);
 
         return $this;

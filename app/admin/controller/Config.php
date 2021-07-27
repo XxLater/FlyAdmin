@@ -72,10 +72,17 @@ class Config extends Base
         {
             $this->update();
         }
+
         $data = ConfigService::instance()->where('group','wechat_app')->column('value','key');
         ConstructorFormService::create('小程序配置')
             ->addText('小程序ID','program_app_id',true)
             ->addText('小程序密钥','program_app_secret',true)
+            ->addText('项目名称','app_title',true)
+            ->addText('分享名称','share_title',true)
+            ->addImage('分享海报图','share_background_image',true)
+            ->addImage('肯德基海报图','kfc_background_image',true)
+            ->addImage('麦当劳海报图','m_background_image',true)
+            ->addImage('电影票海报图','movie_background_image',true)
             ->setData($data)
             ->fetch();
     }

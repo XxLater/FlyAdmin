@@ -37,10 +37,9 @@ class WeChatMiniProgramService extends BaseService
     protected function getConfig():array
     {
         $config = system_config(['program_app_id','program_app_secret']);
-
         return [
-            'app_id' => $config['program_app_id'],
-            'secret' => $config['program_app_secret'],
+            'app_id' => $config[0],
+            'secret' => $config[1],
             'response_type' => 'array',
         ];
     }

@@ -42,4 +42,5 @@ class UserModel extends BaseModel
         return md5($password);
     }
     
+    
 }

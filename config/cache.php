@@ -38,8 +38,8 @@ return [
             // 序列化机制 例如 ['serialize', 'unserialize']
             'serialize'  => [],
             'host'       => '127.0.0.1',
-            'port'       =>  6379,
-            'password'   => '',
+            'port'       =>  8010,
+            'password'   => 'echo',
         ],
         // 更多的缓存连接
     ],

@@ -34,7 +34,7 @@ class AdminMiddleware
         if (!$uid = TokenService::instance()->verify($token)) {
             if($request->isAjax())
             {
-                app('response')->fail('用不不存在',[],40001);
+                app('response')->fail('用户不存在',[],40001);
             }else {
                 throw new HttpResponseException(redirect('/admin/auth/login'));
             }

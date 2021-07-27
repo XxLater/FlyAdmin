@@ -13,6 +13,7 @@ use app\common\exception\ServiceException;
 use app\common\model\BaseModel;
 use think\Container;
 use think\exception\ValidateException;
+use think\Model;
 use think\Request;
 use think\Validate;
 
@@ -59,6 +60,12 @@ class BaseService
         $this->error('方法不存在:'.__CLASS__.'\\'.$name);
     }
 
+    public function setModel(Model $model)
+    {
+        $this->model = $model;
+
+        return $this;
+    }
     /**
      * 数据验证
      * @param  string $scene        验证场景
