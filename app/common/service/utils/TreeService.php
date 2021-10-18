@@ -7,6 +7,7 @@ declare(strict_types=1);
  * @auth echo
  * @email 945462788@qq.com
  * @github https://github.com/945462788
+ * @date 2020-08-16
  **/
 
 namespace app\common\service\utils;
