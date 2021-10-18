@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * @class
- * @auth echo
+ * @author echo
  * @email 945462788@qq.com
  * @github https://github.com/945462788
  * @date 2020-08-16
